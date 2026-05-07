@@ -13,6 +13,7 @@ import {
 } from "@/components/ui/popover";
 import { ScrollArea } from "@/components/ui/scroll-area";
 
+// Email categories shown in the dropdown field.
 const categories = [
   { value: "greeting", label: "ស្វាគមន៍" },
   { value: "meeting", label: "ប្រជុំ" },
@@ -20,6 +21,7 @@ const categories = [
   { value: "confirmation", label: "បញ្ជាក់" },
 ];
 
+// Props passed from ChatUI to control all form fields.
 interface ChatFormProps {
   subject: string;
   setSubject: (value: string) => void;
@@ -44,6 +46,7 @@ interface ChatFormProps {
   onSubmit: (e: FormEvent) => void;
 }
 
+// ChatForm displays inputs for all email details and submits them to ChatUI.
 export function ChatForm({
   subject,
   setSubject,
@@ -62,6 +65,7 @@ export function ChatForm({
 }: ChatFormProps) {
   return (
     <form onSubmit={onSubmit} className="space-y-3 p-4 sm:p-6">
+      {/* Subject input stores the email title/topic. */}
       <input
         placeholder="ប្រធានបទ"
         value={subject}
@@ -70,6 +74,7 @@ export function ChatForm({
         className="h-12 w-full rounded-xl border border-white/10 bg-slate-950 px-4 text-[15px] text-white outline-none placeholder:text-slate-500 focus:border-violet-500"
       />
 
+      {/* Category dropdown lets users choose the type of email. */}
       <select
         value={category}
         onChange={(e) => setCategory(e.target.value)}
@@ -89,6 +94,7 @@ export function ChatForm({
         ))}
       </select>
 
+      {/* Date picker stores the optional email date. */}
       <Popover>
         <PopoverTrigger asChild>
           <Button
@@ -111,6 +117,7 @@ export function ChatForm({
         </PopoverContent>
       </Popover>
 
+      {/* Time picker lets users choose hour, minute, and AM/PM. */}
       <Popover>
         <PopoverTrigger asChild>
           <Button
@@ -136,6 +143,7 @@ export function ChatForm({
               <ScrollArea className="h-56 rounded-lg border border-white/10 bg-slate-950">
                 <div className="space-y-1 p-2">
                   {Array.from({ length: 12 }, (_, i) => i + 1).map((hour) => {
+                    // Keep the selected minute and period while changing only the hour.
                     const currentMinute =
                       time.split(":")[1]?.split(" ")[0] || "00";
 
@@ -171,6 +179,7 @@ export function ChatForm({
               <ScrollArea className="h-56 rounded-lg border border-white/10 bg-slate-950">
                 <div className="space-y-1 p-2">
                   {Array.from({ length: 12 }, (_, i) => i * 5).map((minute) => {
+                    // Keep the selected hour and period while changing only the minute.
                     const currentHour = time.split(":")[0] || "09";
 
                     const period = time.includes("PM") ? "PM" : "AM";
@@ -200,6 +209,7 @@ export function ChatForm({
             </div>
           </div>
 
+          {/* AM/PM buttons update only the period part of the selected time. */}
           <div className="mt-3 grid grid-cols-2 gap-2">
             {["AM", "PM"].map((p) => {
               const currentHour = time.split(":")[0] || "09";
@@ -227,6 +237,7 @@ export function ChatForm({
         </PopoverContent>
       </Popover>
 
+      {/* Location is optional and adds a place to the generated email. */}
       <input
         placeholder="ទីតាំង"
         value={location}
@@ -234,6 +245,7 @@ export function ChatForm({
         className="h-12 w-full rounded-xl border border-white/10 bg-slate-950 px-4 text-white outline-none placeholder:text-slate-500 focus:border-violet-500"
       />
 
+      {/* Main information field contains the details the AI should include. */}
       <textarea
         placeholder="ព័ត៌មានសំខាន់ដែលចង់ដាក់ក្នុងអ៊ីមែល"
         value={info}
@@ -243,6 +255,7 @@ export function ChatForm({
         className="min-h-32 w-full resize-none rounded-xl border border-white/10 bg-slate-950 px-4 py-3 text-white outline-none placeholder:text-slate-500 focus:border-violet-500"
       />
 
+      {/* Submit button shows a spinner while the email is being generated. */}
       <button
         type="submit"
         disabled={loading}

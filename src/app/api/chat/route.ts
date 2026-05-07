@@ -1,5 +1,6 @@
 import OpenAI from "openai";
 
+// Map category keys from the form to Khmer labels used in the generated email.
 const categoryLabels: Record<string, string> = {
   greeting: "អ៊ីមែលស្វាគមន៍",
   meeting: "អ៊ីមែលប្រជុំ",
@@ -9,6 +10,7 @@ const categoryLabels: Record<string, string> = {
   apology: "អ៊ីមែលសុំទោស",
 };
 
+// Build a fallback Khmer email when OPENAI_API_KEY is not configured.
 function demoEmail({
   subject,
   category,
@@ -36,15 +38,16 @@ ${location ? `ទីតាំង៖ ${location}` : ""}
 
 សូមអរគុណចំពោះការយកចិត្តទុកដាក់។
 
-ដោយក្តីគោរព,
-
 [ឈ្មោះរបស់អ្នក]`;
 }
 
+// Handle POST requests from the frontend form and return the generated email.
 export async function POST(req: Request) {
   try {
+    // Read user input sent from fetch("/api/chat").
     const { subject, category, info, datetime, location } = await req.json();
 
+    // Validate required fields before generating the email.
     if (!subject || !category || !info) {
       return Response.json(
         { message: "សូមបំពេញ ប្រធានបទ ប្រភេទ និងព័ត៌មានសំខាន់។" },
@@ -52,8 +55,10 @@ export async function POST(req: Request) {
       );
     }
 
+    // Read the OpenAI API key from environment variables.
     const apiKey = process.env.OPENAI_API_KEY;
 
+    // Return demo output if there is no API key, so the app still works locally.
     if (!apiKey) {
       return Response.json({
         message: demoEmail({
@@ -66,8 +71,10 @@ export async function POST(req: Request) {
       });
     }
 
+    // Create an OpenAI client using the configured API key.
     const client = new OpenAI({ apiKey });
 
+    // Prompt instructs the model to write only a formal Khmer email.
     const prompt = `
 អ្នកគឺជាអ្នកជំនាញសរសេរអ៊ីមែលផ្លូវការជាភាសាខ្មែរ។
 
@@ -106,15 +113,18 @@ export async function POST(req: Request) {
 សូមបង្ហាញតែអ៊ីមែលចុងក្រោយប៉ុណ្ណោះ។
 `;
 
+    // Ask the OpenAI Responses API to generate the email.
     const response = await client.responses.create({
       model: "gpt-5.4-mini",
       input: prompt,
     });
 
+    // Send the generated email text back to the frontend.
     return Response.json({
       message: response.output_text || "មិនអាចបង្កើតអ៊ីមែលបានទេ។",
     });
   } catch (error) {
+    // Log unexpected server errors for debugging.
     console.error(error);
 
     return Response.json(

@@ -6,13 +6,16 @@ import { FormEvent, useState } from "react";
 import { ChatForm } from "./chat-form";
 import { ResultSection } from "./result-section";
 
+// Message describes one generated response shown in the result area.
 type Message = {
   id: string;
   role: "user" | "assistant";
   content: string;
 };
 
+// ChatUI owns the form state, submits data to the API, and displays the result.
 export function ChatUI() {
+  // Form field states store the user's input.
   const [subject, setSubject] = useState("");
   const [category, setCategory] = useState("");
   const [info, setInfo] = useState("");
@@ -21,13 +24,16 @@ export function ChatUI() {
   const [location, setLocation] = useState("");
   const [loading, setLoading] = useState(false);
 
+  // messages stores the generated email returned from the API.
   const [messages, setMessages] = useState<Message[]>([]);
 
+  // Submit form data to the backend and save the generated email response.
   async function onSubmit(e: FormEvent) {
     e.preventDefault();
 
     setLoading(true);
 
+    // Combine selected date and time into one string for the API.
     const datetime = `${date ? format(date, "PPP") : ""} ${time}`;
 
     try {
@@ -44,6 +50,7 @@ export function ChatUI() {
 
       const data = await res.json();
 
+      // Replace the previous result with the newest generated email.
       setMessages([
         {
           id: crypto.randomUUID(),
@@ -52,6 +59,7 @@ export function ChatUI() {
         },
       ]);
     } finally {
+      // Always stop the loading state after the request finishes.
       setLoading(false);
     }
   }
@@ -59,6 +67,7 @@ export function ChatUI() {
   return (
     <main className="min-h-screen bg-slate-950 px-3 py-6 text-white sm:px-6">
       <section className="mx-auto w-full max-w-3xl rounded-2xl border border-white/10 bg-slate-900/80 shadow-xl">
+        {/* Header explains the purpose of the tool. */}
         <div className="border-b border-white/10 px-5 py-5">
           <h1 className="text-lg font-semibold tracking-tight sm:text-xl">
             ប្រព័ន្ធបង្កើតអ៊ីមែលជាភាសាខ្មែរ
@@ -69,6 +78,7 @@ export function ChatUI() {
           </p>
         </div>
 
+        {/* Form collects the information needed to generate an email. */}
         <ChatForm
           subject={subject}
           setSubject={setSubject}
@@ -86,6 +96,7 @@ export function ChatUI() {
           onSubmit={onSubmit}
         />
 
+        {/* ResultSection displays the generated email or loading state. */}
         <ResultSection messages={messages} loading={loading} />
       </section>
     </main>

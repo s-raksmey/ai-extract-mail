@@ -1,5 +1,6 @@
 import { Loader2 } from "lucide-react";
 
+// Message matches the generated email object passed from ChatUI.
 type Message = {
   id: string;
   role: "user" | "assistant";
@@ -11,6 +12,7 @@ interface ResultSectionProps {
   loading: boolean;
 }
 
+// Clean model output so the result looks like a normal email, not Markdown.
 function cleanEmailText(text: string) {
   return text
     .replace(/\r\n/g, "\n")
@@ -26,6 +28,7 @@ function cleanEmailText(text: string) {
     .trim();
 }
 
+// ResultSection displays the generated email, empty placeholder, or loading message.
 export function ResultSection({ messages, loading }: ResultSectionProps) {
   return (
     <div className="border-t border-white/10 p-4 sm:p-6">
@@ -34,10 +37,12 @@ export function ResultSection({ messages, loading }: ResultSectionProps) {
       </h2>
 
       <div className="min-h-32 rounded-xl border border-white/10 bg-slate-950 p-4">
+        {/* Placeholder appears before any email has been generated. */}
         {messages.length === 0 && !loading && (
           <p className="text-sm text-slate-500">លទ្ធផលនឹងបង្ហាញនៅទីនេះ...</p>
         )}
 
+        {/* Render each generated email with preserved line breaks. */}
         {messages.map((m) => (
           <div
             key={m.id}
@@ -47,6 +52,7 @@ export function ResultSection({ messages, loading }: ResultSectionProps) {
           </div>
         ))}
 
+        {/* Loading indicator appears while waiting for the API response. */}
         {loading && (
           <div className="flex items-center gap-2 text-sm text-slate-400">
             <Loader2 className="size-4 animate-spin" />
